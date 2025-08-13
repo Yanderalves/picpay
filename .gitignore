@@ -1,0 +1,34 @@
+﻿
+# Pasta de build e arquivos de depuração
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+
+# Arquivos de usuário do Visual Studio
+.vs/
+*.suo
+*.user
+*.userossc
+*.sln.docstates
+
+# Pacotes de nuget
+*.nupkg
+packages/
+
+# Arquivos de log e cache
+*.log
+[Ll]og/
+*.cache
+
+# Arquivos de configurações sensíveis
+*.user.json
+
+# Arquivos de migração de banco de dados
+[Mm]igrations/
+
+# Arquivos de banco de dados local (SQLite)
+*.db
+
+# Arquivos de testes (se houver)
+[Tt]ests/
