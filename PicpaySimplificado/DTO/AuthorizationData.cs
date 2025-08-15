@@ -1,6 +1,3 @@
-﻿namespace PicpaySimplificado.DTO;
+﻿namespace Picpay.DTO;
 
-public class AuthorizationData
-{
-    public bool Authorization { get; set; }
-}
+public record AuthorizationData(bool Authorization);

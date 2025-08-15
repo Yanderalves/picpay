@@ -1,63 +1,62 @@
-﻿using System.Net;
-using Microsoft.EntityFrameworkCore;
-using PicpaySimplificado.Api;
-using PicpaySimplificado.Context;
-using PicpaySimplificado.DTO;
-using PicpaySimplificado.Enums;
+﻿using Microsoft.EntityFrameworkCore;
+using Picpay.Api;
+using Picpay.Context;
+using Picpay.DTO;
+using Picpay.Enums;
+using Picpay.Exceptions;
+using Picpay.Models;
 
 namespace PicpaySimplificado.Service;
 
-public class TransferService
+public class TransferService(DatabaseContext context, AuthorizationClient client)
 {
-    public DatabaseContext _context { get; set; }
-    private readonly AuthorizationClient _client;
-    public TransferService(DatabaseContext context, AuthorizationClient client)
+    private DatabaseContext Context { get; } = context;
+    private async Task<(User payer, User payee)> ValidateTransfer(TransferDTO transferDto)
     {
-        _context = context;
-        _client = client;
+        var payee =  await Context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.Payee);
+        var payer =  await Context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.Payer);
+                    
+        if(payer is null)
+            throw new PayerNotFoundException("Payer not found");
+        if(payee is null)
+            throw new PayeeNotFoundException("Payee not found");
+                    
+        if(payer.Type == UserType.Merchant)
+            throw new InvalidUserTypeException("Invalid user type");
+                    
+        if(payer.Balance -  transferDto.Value < 0)
+            throw new InsufficientFundsException("Not enough balance");
+        
+        return (payer, payee);
     }
-    public async Task<IResult> ExecuteTransferAsync(TransferDTO  transferDto)
+    public async Task ExecuteTransferAsync(TransferDTO  transferDto)
     {
-        using (var transaction = _context.Database.BeginTransaction())
+        await using var transaction = await Context.Database.BeginTransactionAsync();
+        try
         {
-            try
-            {
-                var payee =  await _context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.payee);
-                var payer =  await _context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.payer);
-                    
-                if(payer is null)
-                    return Results.BadRequest("Payer not found");
-                if(payee is null)
-                    return Results.BadRequest("Payee not found");
-                    
-                if(payer.Type == UserType.Merchant)
-                    return Results.BadRequest("Type is invalid");
-                    
-                if(payer.Balance -  transferDto.value < 0)
-                    return Results.BadRequest("Not enough balance");
+            var (payer, payee) = await ValidateTransfer(transferDto);
 
-                AuthorizationResponse response = await _client.AuthorizeTransferAsync();
+            if (payer is null && payee is null)
+                throw new InvalidOperationException("Payer and payee not found");
+            
+            var response = await client.AuthorizeTransferAsync();
 
-                if (response.Data.Authorization == false)
-                    return Results.Unauthorized();
+            if (response.Data.Authorization == false)
+                throw new RequestNotAuthorized("Request not authorized");
 
-                Transfer transfer = new Transfer(transferDto.value, transferDto.payer, transferDto.payee);
-                    
-                payer.Debit(transferDto.value);
-                payee.Credit(transferDto.value);
-                    
-                await _context.Transfers.AddAsync(transfer);
-                await _context.SaveChangesAsync();
-                transaction.Commit();
-                    
-                return Results.Ok();
-            }
-            catch (Exception e)
-            {
-                transaction.Rollback();
-                return Results.StatusCode(500);
+            var transfer = new Transfer(transferDto.Value, transferDto.Payer, transferDto.Payee);
                 
-            }
+            payer?.Debit(transferDto.Value);
+            payee.Credit(transferDto.Value);
+                
+            await Context.Transfers.AddAsync(transfer);
+            await Context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
     }
 }

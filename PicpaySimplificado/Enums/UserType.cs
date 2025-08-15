@@ -1,4 +1,4 @@
-﻿namespace PicpaySimplificado.Enums;
+﻿namespace Picpay.Enums;
 
 public enum UserType
 {

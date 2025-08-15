@@ -1,3 +1,3 @@
-﻿namespace PicpaySimplificado.DTO;
+﻿namespace Picpay.DTO;
 
-public record TransferDTO(decimal value, Guid payer, Guid payee);
+public record TransferDTO(decimal Value, Guid Payer, Guid Payee);

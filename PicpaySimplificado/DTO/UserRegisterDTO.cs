@@ -1,5 +1,5 @@
-﻿using PicpaySimplificado.Enums;
+﻿using Picpay.Enums;
 
-namespace PicpaySimplificado.DTO;
+namespace Picpay.DTO;
 
 public record UserRegisterDTO(string name, string identifier, string email, string password, UserType type);

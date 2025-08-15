@@ -1,6 +1,6 @@
-﻿using PicpaySimplificado.Enums;
+﻿using Picpay.Enums;
 
-namespace PicpaySimplificado.Models;
+namespace Picpay.Models;
 
 public class User
 {

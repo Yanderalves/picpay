@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PicpaySimplificado.Models;
+using Picpay.Models;
 
-namespace PicpaySimplificado.Context;
+namespace Picpay.Context;
 
 public class DatabaseContext : DbContext
 {
