@@ -11,7 +11,7 @@ namespace PicpaySimplificado.Service;
 public class TransferService(DatabaseContext context, AuthorizationClient client)
 {
     private DatabaseContext Context { get; } = context;
-    private async Task<(User payer, User payee)> ValidateTransfer(TransferDTO transferDto)
+    private async Task<(User payer, User payee)> ValidateTransferAndgetUserAsync(TransferDTO transferDto)
     {
         var payee =  await Context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.Payee);
         var payer =  await Context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.Payer);
@@ -34,7 +34,7 @@ public class TransferService(DatabaseContext context, AuthorizationClient client
         await using var transaction = await Context.Database.BeginTransactionAsync();
         try
         {
-            var (payer, payee) = await ValidateTransfer(transferDto);
+            var (payer, payee) = await ValidateTransferAndgetUserAsync(transferDto);
 
             if (payer is null && payee is null)
                 throw new InvalidOperationException("Payer and payee not found");

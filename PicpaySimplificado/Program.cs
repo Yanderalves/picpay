@@ -1,4 +1,5 @@
-﻿using Picpay.Api;
+﻿using Microsoft.EntityFrameworkCore;
+using Picpay.Api;
 using Picpay.Context;
 using Picpay.Routes;
 using PicpaySimplificado.Service;
@@ -11,7 +12,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<AuthorizationClient>();
 builder.Services.AddScoped<TransferService>();
-builder.Services.AddScoped<DatabaseContext>();
+
+builder.Services.AddDbContext<DatabaseContext>(opt =>
+{
+    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));  
+});
 
 var app = builder.Build();
 

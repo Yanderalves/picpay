@@ -12,6 +12,7 @@ public class AuthorizationClient
     {
         _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
         var response = await _client.GetAsync("https://util.devi.tools/api/v2/authorize");
-        return JsonConvert.DeserializeObject<AuthorizationResponseDTO>(response.Content.ReadAsStringAsync().Result);
+        var content = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<AuthorizationResponseDTO>(content);
     }
 }

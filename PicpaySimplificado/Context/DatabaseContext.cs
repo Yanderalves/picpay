@@ -8,9 +8,8 @@ public class DatabaseContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Transfer> Transfers { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
     {
-        options.UseSqlite("Data Source=PicpaySimplificado.db");
     }
 
     protected override void OnModelCreating(ModelBuilder options)

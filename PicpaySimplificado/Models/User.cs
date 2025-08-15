@@ -1,4 +1,5 @@
 ﻿using Picpay.Enums;
+using Picpay.Exceptions;
 
 namespace Picpay.Models;
 
@@ -31,7 +32,7 @@ public class User
     public void Debit(decimal amount)
     {
         if (Balance - amount < 0)
-            return;
+            throw new InsufficientFundsException("Not enough balance");
         Balance -= amount;
     }
 }
