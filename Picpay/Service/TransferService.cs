@@ -6,7 +6,7 @@ using Picpay.Enums;
 using Picpay.Exceptions;
 using Picpay.Models;
 
-namespace PicpaySimplificado.Service;
+namespace Picpay.Service;
 
 public class TransferService(DatabaseContext context, AuthorizationClient client)
 {
@@ -53,7 +53,7 @@ public class TransferService(DatabaseContext context, AuthorizationClient client
             await Context.SaveChangesAsync();
             await transaction.CommitAsync();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             await transaction.RollbackAsync();
             throw;

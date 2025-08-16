@@ -4,7 +4,7 @@ using Picpay.Context;
 using Picpay.DTO;
 using Picpay.Models;
 using Picpay.Exceptions;
-using PicpaySimplificado.Service;
+using Picpay.Service;
 
 namespace Picpay.Routes;
 
@@ -97,8 +97,8 @@ public static class Routes
             return Results.Ok(new
             {
                 currentBalance = user.Balance,
-                transfersMade = transfersMade,
-                transfersReceived = transfersReceived
+                transfersMade,
+                transfersReceived
             });
         });
         

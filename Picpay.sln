@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicpaySimplificado", "PicpaySimplificado\PicpaySimplificado.csproj", "{71877EDC-7BFF-4600-9D96-C294EA63B5E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Picpay", "Picpay\Picpay.csproj", "{71877EDC-7BFF-4600-9D96-C294EA63B5E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

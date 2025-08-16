@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Picpay.Api;
 using Picpay.Context;
 using Picpay.Routes;
-using PicpaySimplificado.Service;
+using Picpay.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
