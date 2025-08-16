@@ -1,3 +1,3 @@
 ﻿namespace Picpay.DTO;
 
-public record AuthorizationResponseDTO( string Status, AuthorizationData Data);
+public record AuthorizationResponseDTO( string Status, AuthorizationDataDto Data);

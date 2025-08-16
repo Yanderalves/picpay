@@ -41,7 +41,7 @@ public class TransferService(DatabaseContext context, AuthorizationClient client
             
             var response = await client.AuthorizeTransferAsync();
 
-            if (response.Data.Authorization == false)
+            if (!response.Data.Authorization)
                 throw new RequestNotAuthorized("Request not authorized");
 
             var transfer = new Transfer(transferDto.Value, transferDto.Payer, transferDto.Payee);
@@ -53,7 +53,7 @@ public class TransferService(DatabaseContext context, AuthorizationClient client
             await Context.SaveChangesAsync();
             await transaction.CommitAsync();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             await transaction.RollbackAsync();
             throw;

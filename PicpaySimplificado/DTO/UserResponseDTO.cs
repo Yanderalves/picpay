@@ -1,5 +1,7 @@
-﻿using Picpay.Enums;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Picpay.Enums;
 
 namespace Picpay.DTO;
 
-public record UserResponseDTO(Guid Id, string Email, string Name, UserType Type, decimal Balance);
+public record UserResponseDTO(Guid Id, string Email, string Name,  UserType Type, decimal Balance);

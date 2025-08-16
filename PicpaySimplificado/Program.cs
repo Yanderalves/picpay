@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Picpay.Api;
 using Picpay.Context;
 using Picpay.Routes;
@@ -10,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureHttpJsonOptions(opt =>
+{
+    opt.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddHttpClient<AuthorizationClient>();
 builder.Services.AddScoped<TransferService>();
 

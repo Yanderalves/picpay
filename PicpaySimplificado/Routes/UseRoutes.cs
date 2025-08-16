@@ -19,7 +19,10 @@ public static class Routes
             var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
             if(user is null)
                 return Results.NotFound();
-            return Results.Ok(user);
+            
+            var userResponseDto = new UserResponseDTO(user.Id, user.Email, user.Name, user.Type, user.Balance);
+            
+            return Results.Ok(userResponseDto);
         });
 
         users.MapGet("",
@@ -46,6 +49,57 @@ public static class Routes
             await context.Users.AddAsync(newUser);
             await context.SaveChangesAsync();
             return Results.Created($"/users/{newUser.Id}", user);
+        });
+
+        users.MapGet("/statement/{id}", async (Guid id, [FromServices] DatabaseContext context) =>
+        {
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user is null)
+            {
+                return Results.NotFound();
+            }
+
+            var transfers = await context.Transfers
+                .Where(t => t.PayeeId == id || t.PayerId == id)
+                .ToListAsync();
+
+            var transfersMade = new List<object>();
+            var transfersReceived = new List<object>();
+    
+            var allUserIds = transfers.Select(t => t.PayerId).Union(transfers.Select(t => t.PayeeId)).ToHashSet();
+    
+            var allUsers = await context.Users
+                .Where(u => allUserIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.Name);
+
+            foreach (var transfer in transfers)
+            {
+                if (transfer.PayeeId == id)
+                {
+                    transfersReceived.Add(new
+                    {
+                        from = allUsers.GetValueOrDefault(transfer.PayerId, "User Not Found"),
+                        value = transfer.Value,
+                        date = transfer.CreatedAt
+                    });
+                }
+                else if (transfer.PayerId == id)
+                {
+                    transfersMade.Add(new
+                    {
+                        to = allUsers.GetValueOrDefault(transfer.PayeeId, "User Not Found"),
+                        value = transfer.Value,
+                        date = transfer.CreatedAt
+                    });
+                }
+            }
+    
+            return Results.Ok(new
+            {
+                currentBalance = user.Balance,
+                transfersMade = transfersMade,
+                transfersReceived = transfersReceived
+            });
         });
         
         var transfer = app.MapGroup("transfer");
