@@ -13,6 +13,25 @@ public static class Routes
     public static void UseRoutes(this WebApplication app)
     {
         var users = app.MapGroup("users");
+
+        users.MapPost("/login",
+            async ([FromServices] DatabaseContext context, [FromServices]TokenService tokenService,UserLoginDTO userLoginDto) =>
+            {
+                var user = await context.Users.FirstOrDefaultAsync(x => x.Email == userLoginDto.email);
+                if (user is null)
+                    return Results.NotFound();
+                
+                if (BCrypt.Net.BCrypt.Verify(userLoginDto.password, user.Password))
+                {
+                    var token = tokenService.GenerateToken(user);
+                    return Results.Ok(new
+                    {
+                        token
+                    });
+                }
+                return Results.Unauthorized();
+
+            });
         
         users.MapGet("{id}", async (Guid id, [FromServices] DatabaseContext context) =>
         {   
@@ -139,6 +158,6 @@ public static class Routes
                         detail: "An unexpected server error occurred. Please try again later.",
                         statusCode: StatusCodes.Status500InternalServerError);
                 }
-            });
+            }).RequireAuthorization();
     }
 }

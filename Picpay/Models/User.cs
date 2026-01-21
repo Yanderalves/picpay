@@ -24,6 +24,11 @@ public class User
         Balance = 0;
     }
 
+    public User()
+    {
+        
+    }
+
     public void Credit(decimal amount)
     {
         Balance += amount;
