@@ -110,7 +110,7 @@ public class UserService : IUserService
             else if (transfer.PayerId == userId)
             {
                 transfersMade.Add(new TransferMadeDTO(
-                    To: allUsers.GetValueOrDefault(transfer.PayerId, "User Not Found"),
+                    To: allUsers.GetValueOrDefault(transfer.PayeeId, "User Not Found"),
                     Value: transfer.Value,
                     Date: transfer.CreatedAt)
                 );

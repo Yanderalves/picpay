@@ -4,7 +4,7 @@ namespace PicpaySimplificado.Repository;
 
 public interface IUserRepository
 {
-    public void CreateUserAsync(User user);
+    public Task CreateUserAsync(User user);
     public Task<User?> GetUserByEmailAsync(string email);
     public Task<User?> GetUserByIdAsync(Guid id);
     public Task<List<User>> GetAllUsersAsync();
