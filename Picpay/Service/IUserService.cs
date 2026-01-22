@@ -6,7 +6,7 @@ namespace Picpay.Service;
 
 public interface IUserService
 {
-    public Task<User> CreateUserAsync(UserRegisterDTO userRegisterDto);
+    public Task<UserResponseDTO> CreateUserAsync(UserRegisterDTO userRegisterDto);
     public Task<User?> GetUserByEmailAsync(string email);
     public Task<UserResponseDTO?> GetUserByIdAsync(Guid id);
     public Task<List<UserResponseDTO>> GetAllUsersAsync();

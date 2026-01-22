@@ -7,6 +7,7 @@ using Picpay.Api;
 using Picpay.Context;
 using Picpay.Routes;
 using Picpay.Service;
+using PicpaySimplificado.Middleware;
 using PicpaySimplificado.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +58,8 @@ builder.Services.AddDbContext<DatabaseContext>(opt =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

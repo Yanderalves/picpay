@@ -19,7 +19,7 @@ public class UserService : IUserService
         this._tokenService = tokenService;
     }
     
-    public async Task<User> CreateUserAsync(UserRegisterDTO userRegisterDto)
+    public async Task<UserResponseDTO> CreateUserAsync(UserRegisterDTO userRegisterDto)
     {
         var user = await _userRepository.GetUserByEmailOrIdentifier(userRegisterDto.email,  userRegisterDto.identifier);
         if(user is not null)
@@ -28,8 +28,10 @@ public class UserService : IUserService
         User newUser = new User(userRegisterDto.name, userRegisterDto.email, userRegisterDto.password,
             userRegisterDto.type,  userRegisterDto.identifier);
         
-        _userRepository.CreateUserAsync(newUser);
-        return newUser;
+        await _userRepository.CreateUserAsync(newUser);
+        
+        var userDto = new UserResponseDTO(newUser.Id, newUser.Email, newUser.Name, newUser.Type, newUser.Balance);
+        return userDto;
     }
 
     public Task<User?> GetUserByEmailAsync(string email)
