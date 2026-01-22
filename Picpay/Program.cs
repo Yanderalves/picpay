@@ -7,6 +7,7 @@ using Picpay.Api;
 using Picpay.Context;
 using Picpay.Routes;
 using Picpay.Service;
+using PicpaySimplificado.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,9 @@ builder.Services.AddAuthentication(x =>
         };
     });
 
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository,  UserRepository>();
+builder.Services.AddScoped<ITransferRepository, TransferRepository>();
 builder.Services.AddHttpClient<AuthorizationClient>();
 builder.Services.AddScoped<TransferService>();
 builder.Services.AddScoped<TokenService>();

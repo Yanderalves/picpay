@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Picpay.Context;
 using Picpay.DTO;
 using Picpay.Models;
 using Picpay.Exceptions;
 using Picpay.Service;
+using PicpaySimplificado.Repository;
 
 namespace Picpay.Routes;
 
@@ -15,120 +15,109 @@ public static class Routes
         var users = app.MapGroup("users");
 
         users.MapPost("/login",
-            async ([FromServices] DatabaseContext context, [FromServices]TokenService tokenService,UserLoginDTO userLoginDto) =>
+            async ([FromServices] IUserService userService, UserLoginDTO userLoginDto) =>
             {
-                var user = await context.Users.FirstOrDefaultAsync(x => x.Email == userLoginDto.email);
-                if (user is null)
-                    return Results.NotFound();
-                
-                if (BCrypt.Net.BCrypt.Verify(userLoginDto.password, user.Password))
+                try
                 {
-                    var token = tokenService.GenerateToken(user);
-                    return Results.Ok(new
-                    {
-                        token
-                    });
+                    var token = await userService.LoginAsync(userLoginDto);
+                    return token == string.Empty ? Results.Unauthorized() : Results.Ok(token);
                 }
-                return Results.Unauthorized();
+                catch (UserNotFoundException ex)
+                {
+                    return Results.NotFound(ex.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    return Results.Problem();
+                }
 
             });
         
-        users.MapGet("{id}", async (Guid id, [FromServices] DatabaseContext context) =>
-        {   
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if(user is null)
-                return Results.NotFound();
-            
-            var userResponseDto = new UserResponseDTO(user.Id, user.Email, user.Name, user.Type, user.Balance);
-            
-            return Results.Ok(userResponseDto);
+        users.MapGet("{id}", async (Guid id, [FromServices] IUserService userService) =>
+        {
+            try
+            {
+                var user = await userService.GetUserByIdAsync(id);
+                return Results.Ok(user);
+            }
+            catch (UserNotFoundException ex)
+            {
+                return Results.NotFound(ex.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Results.Problem();
+            }
         });
 
         users.MapGet("",
-            async ([FromServices] DatabaseContext context) =>
+            async ([FromServices] IUserService userService) =>
             {
-                var users = await context.Users.ToListAsync();
-                if (users is null)
-                    return Results.NotFound();
-
-                var usersDto = users.Select(item =>
-                    new UserResponseDTO
-                        (item.Id, item.Email, item.Name, item.Type, item.Balance)).ToList();
-                
-                return Results.Ok(usersDto);
+                try
+                {
+                    var users = await userService.GetAllUsersAsync();
+                    return Results.Ok(users);
+                }
+                catch (UserNotFoundException ex)
+                {
+                    return Results.NotFound(ex.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    return Results.Problem();
+                }
             });
 
-        users.MapPost("", async (UserRegisterDTO userRegisterDto, [FromServices] DatabaseContext context) =>
+        users.MapPost("", async (UserRegisterDTO userRegisterDto, [FromServices] IUserService userService) =>
         {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Email == userRegisterDto.email || x.Identifier == userRegisterDto.identifier);
-            if(user is not null)
-                return Results.Conflict("User already exists ");
-
-            User newUser = new User(userRegisterDto.name, userRegisterDto.email, userRegisterDto.password, userRegisterDto.type,  userRegisterDto.identifier);
-            await context.Users.AddAsync(newUser);
-            await context.SaveChangesAsync();
-            return Results.Created($"/users/{newUser.Id}", user);
+            try
+            {
+                await userService.CreateUserAsync(userRegisterDto);
+                return Results.Created();
+            }
+            catch (UserAlreadyExistsException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         });
 
-        users.MapGet("/statement/{id}", async (Guid id, [FromServices] DatabaseContext context) =>
+        users.MapGet("/statement/{id}", async (Guid id, [FromServices] IUserService userService) =>
         {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (user is null)
+            try
             {
-                return Results.NotFound();
+                var statement =  await userService.GetStatementByUserId(id);
+                return Results.Ok(statement);
             }
-
-            var transfers = await context.Transfers
-                .Where(t => t.PayeeId == id || t.PayerId == id)
-                .ToListAsync();
-
-            var transfersMade = new List<object>();
-            var transfersReceived = new List<object>();
-    
-            var allUserIds = transfers.Select(t => t.PayerId).Union(transfers.Select(t => t.PayeeId)).ToHashSet();
-    
-            var allUsers = await context.Users
-                .Where(u => allUserIds.Contains(u.Id))
-                .ToDictionaryAsync(u => u.Id, u => u.Name);
-
-            foreach (var transfer in transfers)
+            catch (UserNotFoundException ex)
             {
-                if (transfer.PayeeId == id)
-                {
-                    transfersReceived.Add(new
-                    {
-                        from = allUsers.GetValueOrDefault(transfer.PayerId, "User Not Found"),
-                        value = transfer.Value,
-                        date = transfer.CreatedAt
-                    });
-                }
-                else if (transfer.PayerId == id)
-                {
-                    transfersMade.Add(new
-                    {
-                        to = allUsers.GetValueOrDefault(transfer.PayeeId, "User Not Found"),
-                        value = transfer.Value,
-                        date = transfer.CreatedAt
-                    });
-                }
+                return Results.NotFound(ex.Message);
             }
-    
-            return Results.Ok(new
+            catch (Exception e)
             {
-                currentBalance = user.Balance,
-                transfersMade,
-                transfersReceived
-            });
+                return Results.Problem();
+            }
         });
         
-        var transfer = app.MapGroup("transfer");
+        var transfer = app.MapGroup("transfer").RequireAuthorization();
 
         transfer.MapPost("",
-            async ([FromServices] DatabaseContext context, [FromServices] TransferService transferService,
+            async ([FromServices] DatabaseContext context, [FromServices] TransferService transferService, HttpContext httpContext,
                 TransferDTO transferDto) =>
             {
                 try
                 {
+                    var userIdFromToken = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                    if (userIdFromToken is null || userIdFromToken != transferDto.Payer.ToString())
+                        return Results.Forbid();
+                        
                     await transferService.ExecuteTransferAsync(transferDto);
                     return Results.NoContent();
                 }
@@ -158,6 +147,6 @@ public static class Routes
                         detail: "An unexpected server error occurred. Please try again later.",
                         statusCode: StatusCodes.Status500InternalServerError);
                 }
-            }).RequireAuthorization();
+            });
     }
 }
