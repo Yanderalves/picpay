@@ -1,7 +1,6 @@
 ﻿using Picpay.DTO;
 using Picpay.Enums;
 using Picpay.Models;
-using PicpaySimplificado.DTO;
 
 namespace Picpay.Service;
 

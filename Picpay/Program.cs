@@ -7,8 +7,8 @@ using Picpay.Api;
 using Picpay.Context;
 using Picpay.Routes;
 using Picpay.Service;
-using PicpaySimplificado.Middleware;
-using PicpaySimplificado.Repository;
+using Picpay.Middleware;
+using Picpay.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 

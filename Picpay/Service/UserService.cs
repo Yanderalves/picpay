@@ -2,8 +2,7 @@
 using Picpay.Enums;
 using Picpay.Exceptions;
 using Picpay.Models;
-using PicpaySimplificado.DTO;
-using PicpaySimplificado.Repository;
+using Picpay.Repository;
 
 namespace Picpay.Service;
 

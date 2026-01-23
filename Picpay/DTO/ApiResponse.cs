@@ -1,4 +1,4 @@
-﻿namespace PicpaySimplificado.DTO;
+﻿namespace Picpay.DTO;
 
 public record ApiResponse<T>(
     bool Success,

@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Picpay.Context;
-using Picpay.DTO;
 using Picpay.Enums;
 using Picpay.Models;
 
-namespace PicpaySimplificado.Repository;
+namespace Picpay.Repository;
 
 public class UserRepository(DatabaseContext context) : IUserRepository
 {

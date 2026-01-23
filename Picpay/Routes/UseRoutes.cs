@@ -5,7 +5,6 @@ using Picpay.DTO;
 using Picpay.Enums;
 using Picpay.Models;
 using Picpay.Service;
-using PicpaySimplificado.DTO;
 
 namespace Picpay.Routes;
 

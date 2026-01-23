@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Picpay.Context;
 
-namespace PicpaySimplificado.Repository;
+namespace Picpay.Repository;
 
 public class TransferRepository : ITransferRepository
 {

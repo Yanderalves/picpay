@@ -1,9 +1,8 @@
 ﻿using System.Net;
-using Newtonsoft.Json;
-using PicpaySimplificado.DTO;
+using Picpay.DTO;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace PicpaySimplificado.Middleware;
+namespace Picpay.Middleware;
 
 public class ExceptionMiddleware(RequestDelegate next)
 {

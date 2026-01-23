@@ -1,4 +1,4 @@
-﻿namespace PicpaySimplificado.DTO;
+﻿namespace Picpay.DTO;
 
 public abstract record TransferBaseDTO(decimal Value, DateTime Date);
 
