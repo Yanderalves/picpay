@@ -1,4 +1,6 @@
-﻿using Picpay.Models;
+﻿using Picpay.DTO;
+using Picpay.Enums;
+using Picpay.Models;
 
 namespace PicpaySimplificado.Repository;
 
@@ -10,5 +12,5 @@ public interface IUserRepository
     public Task<List<User>> GetAllUsersAsync();
     public Task<User?> GetUserByEmailOrIdentifier(string? email,  string? identifier);
     public Task<Dictionary<Guid, string>> GetNamesMapByIdsAsync(Guid id, HashSet<Guid> allUserIds);
-    
+    public Task<List<User>> GetUsersByType(UserType type);
 }

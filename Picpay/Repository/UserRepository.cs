@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Picpay.Context;
+using Picpay.DTO;
+using Picpay.Enums;
 using Picpay.Models;
 
 namespace PicpaySimplificado.Repository;
@@ -39,5 +41,10 @@ public class UserRepository(DatabaseContext context) : IUserRepository
             .ToDictionaryAsync(u => u.Id, u => u.Name);
         
         return allUsers;
+    }
+
+    public async Task<List<User>> GetUsersByType(UserType type)
+    {
+        return await context.Users.Where(x => x.Type == type).ToListAsync();
     }
 }

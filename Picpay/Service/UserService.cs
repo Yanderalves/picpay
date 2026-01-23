@@ -1,4 +1,5 @@
 ﻿using Picpay.DTO;
+using Picpay.Enums;
 using Picpay.Exceptions;
 using Picpay.Models;
 using PicpaySimplificado.DTO;
@@ -124,5 +125,16 @@ public class UserService : IUserService
             transferReceived: transfersReceived
         );
 
+    }
+
+    public async Task<List<UserResponseDTO>> GetUsersByType(UserType type)
+    {
+        var users = await _userRepository.GetUsersByType(type);
+        
+        var usersDto = users.Select(item =>
+            new UserResponseDTO
+                (item.Id, item.Email, item.Name, item.Type, item.Balance)).ToList();
+        
+        return usersDto;
     }
 }

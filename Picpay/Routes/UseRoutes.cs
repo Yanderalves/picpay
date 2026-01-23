@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Picpay.Context;
 using Picpay.DTO;
+using Picpay.Enums;
 using Picpay.Models;
-using Picpay.Exceptions;
 using Picpay.Service;
 using PicpaySimplificado.DTO;
-using PicpaySimplificado.Repository;
 
 namespace Picpay.Routes;
 
@@ -34,10 +33,16 @@ public static class Routes
         });
 
         users.MapGet("",
-            async ([FromServices] IUserService userService) =>
+            async ([FromServices] IUserService userService, [FromQuery] UserType? type) =>
             {
-                var users = await userService.GetAllUsersAsync();
-                return Results.Ok(new ApiResponse<object>(Success: true, Data: new { users = users}));
+                List<UserResponseDTO> allUsersAsync;
+                
+                if (type.HasValue)
+                    allUsersAsync = await userService.GetUsersByType(type.Value);  
+                else
+                    allUsersAsync = await userService.GetAllUsersAsync();
+                
+                return Results.Ok(new ApiResponse<object>(Success: true, Data: new { users = allUsersAsync}));
             });
 
         users.MapPost("", async (UserRegisterDTO userRegisterDto, [FromServices] IUserService userService) =>
@@ -51,7 +56,6 @@ public static class Routes
         {
             var statement =  await userService.GetStatementByUserId(id);
             return Results.Ok(new ApiResponse<object>(Success: true, Data: new {statement}));
-           
         });
         
         var transfer = app.MapGroup("transfer").RequireAuthorization();

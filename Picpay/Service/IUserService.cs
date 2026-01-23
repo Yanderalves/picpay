@@ -1,4 +1,5 @@
 ﻿using Picpay.DTO;
+using Picpay.Enums;
 using Picpay.Models;
 using PicpaySimplificado.DTO;
 
@@ -13,4 +14,5 @@ public interface IUserService
     public Task<User?> GetUserByEmailOrIdentifier(string? email,  string? identifier);
     public Task<string> LoginAsync(UserLoginDTO userLoginDto);
     public Task<TransferStatementResponseDTO> GetStatementByUserId(Guid userId);
+    public Task<List<UserResponseDTO>> GetUsersByType(UserType type);
 }
