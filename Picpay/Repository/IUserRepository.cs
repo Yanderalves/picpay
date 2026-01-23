@@ -13,4 +13,5 @@ public interface IUserRepository
     public Task<User?> GetUserByEmailOrIdentifier(string? email,  string? identifier);
     public Task<Dictionary<Guid, string>> GetNamesMapByIdsAsync(Guid id, HashSet<Guid> allUserIds);
     public Task<List<User>> GetUsersByType(UserType type);
+    public Task SaveChangesAsync();
 }

@@ -57,6 +57,12 @@ public static class Routes
             var statement =  await userService.GetStatementByUserId(id);
             return Results.Ok(new ApiResponse<object>(Success: true, Data: new {statement}));
         });
+
+        users.MapPost("deposit",async ([FromServices]  IUserService userService, [FromBody] BalanceDTO balanceDto) =>
+        {
+            await userService.AddBalanceAsync(balanceDto);
+            return Results.Ok(new ApiResponse<object>(Success: true, Message: "Balance added successfully."));
+        });
         
         var transfer = app.MapGroup("transfer").RequireAuthorization();
 
@@ -72,5 +78,6 @@ public static class Routes
                 return Results.NoContent();
                 
             });
+        
     }
 }

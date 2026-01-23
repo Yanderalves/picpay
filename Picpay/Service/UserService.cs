@@ -35,10 +35,7 @@ public class UserService : IUserService
         return userDto;
     }
 
-    public Task<User?> GetUserByEmailAsync(string email)
-    {
-        throw new NotImplementedException();
-    }
+    
 
     public async Task<UserResponseDTO?> GetUserByIdAsync(Guid id)
     {
@@ -63,11 +60,6 @@ public class UserService : IUserService
                 (item.Id, item.Email, item.Name, item.Type, item.Balance)).ToList();
 
         return usersDto;
-    }
-
-    public Task<User?> GetUserByEmailOrIdentifier(string? email, string? identifier)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<string> LoginAsync(UserLoginDTO userLoginDto)
@@ -136,5 +128,15 @@ public class UserService : IUserService
                 (item.Id, item.Email, item.Name, item.Type, item.Balance)).ToList();
         
         return usersDto;
+    }
+
+    public async Task AddBalanceAsync(BalanceDTO balanceDto)
+    { 
+        var user =  await _userRepository.GetUserByIdAsync(balanceDto.UserId);
+        if (user is null)
+            throw new UserNotFoundException("User not found");
+        
+        user.Balance += balanceDto.Balance;
+        await _userRepository.SaveChangesAsync();
     }
 }

@@ -47,4 +47,9 @@ public class UserRepository(DatabaseContext context) : IUserRepository
     {
         return await context.Users.Where(x => x.Type == type).ToListAsync();
     }
+
+    public async Task SaveChangesAsync()
+    {
+        await context.SaveChangesAsync();
+    }
 }
