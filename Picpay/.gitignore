@@ -32,3 +32,5 @@ packages/
 
 # Arquivos de testes (se houver)
 [Tt]ests/
+
+*.idea/
