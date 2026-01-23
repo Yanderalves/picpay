@@ -21,9 +21,6 @@ public static class Routes
             {
                 var token = await userService.LoginAsync(userLoginDto);
                 
-                if(string.IsNullOrEmpty(token))
-                    return Results.Unauthorized();
-                
                 return Results.Ok(new ApiResponse<object>(true, "Login successfully", Data: new {token}));
 
             });

@@ -71,16 +71,15 @@ public class UserService : IUserService
 
     public async Task<string> LoginAsync(UserLoginDTO userLoginDto)
     {
-        var token = string.Empty;
-        
         var user = await _userRepository.GetUserByEmailAsync(userLoginDto.email);
         if (user is null)
             throw new UserNotFoundException("User not found");
-                
-        if (BCrypt.Net.BCrypt.Verify(userLoginDto.password, user.Password))
-        {
-            token = _tokenService.GenerateToken(user);
-        } 
+
+        if (!BCrypt.Net.BCrypt.Verify(userLoginDto.password, user.Password))
+            throw new UserNotAuthorized("User not authorized");
+        
+        var token = _tokenService.GenerateToken(user);
+        
         return token;
     }
 

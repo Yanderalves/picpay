@@ -28,6 +28,7 @@ public class ExceptionMiddleware(RequestDelegate next)
             Picpay.Exceptions.UserNotFoundException => (int)HttpStatusCode.NotFound,
             Picpay.Exceptions.UserAlreadyExistsException => (int)HttpStatusCode.Conflict,
             Picpay.Exceptions.InsufficientFundsException => (int)HttpStatusCode.BadRequest,
+            Picpay.Exceptions.UserNotAuthorized => (int)HttpStatusCode.Unauthorized,
             _ => (int)HttpStatusCode.InternalServerError
         };
 
