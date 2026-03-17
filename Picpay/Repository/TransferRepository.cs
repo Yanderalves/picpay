@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Picpay.Context;
+using Picpay.Models;
 
 namespace Picpay.Repository;
 

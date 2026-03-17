@@ -8,10 +8,10 @@ using Picpay.Models;
 
 namespace Picpay.Service;
 
-public class TransferService(DatabaseContext context, AuthorizationClient client)
+public class TransferService(DatabaseContext context, AuthorizationClient client) : ITransferService
 {
     private DatabaseContext Context { get; } = context;
-    private async Task<(User payer, User payee)> ValidateTransferAndGetUserAsync(TransferDTO transferDto)
+    public async Task<(User payer, User payee)> ValidateTransferAndGetUserAsync(TransferDTO transferDto)
     {
         var payee =  await Context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.Payee);
         var payer =  await Context.Users.FirstOrDefaultAsync(x => x.Id == transferDto.Payer);
@@ -35,9 +35,6 @@ public class TransferService(DatabaseContext context, AuthorizationClient client
         try
         {
             var (payer, payee) = await ValidateTransferAndGetUserAsync(transferDto);
-
-            if (payer is null && payee is null)
-                throw new InvalidOperationException("Payer and payee not found");
             
             var response = await client.AuthorizeTransferAsync();
 
@@ -46,7 +43,7 @@ public class TransferService(DatabaseContext context, AuthorizationClient client
 
             var transfer = new Transfer(transferDto.Value, transferDto.Payer, transferDto.Payee);
                 
-            payer?.Debit(transferDto.Value);
+            payer.Debit(transferDto.Value);
             payee.Credit(transferDto.Value);
                 
             await Context.Transfers.AddAsync(transfer);

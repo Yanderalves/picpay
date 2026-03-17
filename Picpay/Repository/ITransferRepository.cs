@@ -1,4 +1,6 @@
-﻿namespace Picpay.Repository;
+﻿using Picpay.Models;
+
+namespace Picpay.Repository;
 
 public interface ITransferRepository
 {

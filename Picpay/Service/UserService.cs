@@ -33,7 +33,6 @@ public class UserService : IUserService
         var userDto = new UserResponseDTO(newUser.Id, newUser.Email, newUser.Name, newUser.Type, newUser.Balance);
         return userDto;
     }
-
     
 
     public async Task<UserResponseDTO?> GetUserByIdAsync(Guid id)
@@ -135,7 +134,7 @@ public class UserService : IUserService
         if (user is null)
             throw new UserNotFoundException("User not found");
         
-        user.Balance += balanceDto.Balance;
+        user.Credit(balanceDto.Balance);
         await _userRepository.SaveChangesAsync();
     }
 }

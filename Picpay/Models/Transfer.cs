@@ -1,4 +1,6 @@
-﻿public class Transfer
+﻿namespace Picpay.Models;
+
+public class Transfer
 {
     public Guid Id { get; init; }
     public decimal Value { get; set; }
@@ -12,6 +14,6 @@
         Value = value;
         PayerId = payerId;
         PayeeId = payeeId;
-        CreatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
     }
 }
