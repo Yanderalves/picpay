@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 using Picpay.Context;
 using Picpay.Enums;
 using Picpay.Models;
@@ -23,9 +24,13 @@ public class UserRepository(DatabaseContext context) : IUserRepository
         return await context.Users.FirstOrDefaultAsync(x => x.Id== id);
     }
 
-    public async Task<List<User>> GetAllUsersAsync()
+    public async Task<(List<User>, int)> GetAllUsersAsync(int? page, int? pageSize)
     {
-        return await context.Users.ToListAsync();
+        var query = context.Users.AsQueryable();
+        var maxPageSize = Math.Min(pageSize ?? 10, 50);
+        var totalItems = await query.CountAsync();
+
+        return (await query.Skip(((page ?? 1) - 1) * maxPageSize).Take(maxPageSize).OrderBy(item => item.Name).ToListAsync(), totalItems);
     }
 
     public async Task<User?> GetUserByEmailOrIdentifier(string? email, string? identifier)

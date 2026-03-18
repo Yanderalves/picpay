@@ -18,7 +18,7 @@ public static class RoutesUser
             {
                 var token = await userService.LoginAsync(userLoginDto);
                 
-                return Results.Ok(new ApiResponse<object>(true, "Login successfully", Data: new {token, }));
+                return Results.Ok(new ApiResponse<object>(true, Message: "Login successfully", Data: new {token, }));
 
             });
         
@@ -31,23 +31,31 @@ public static class RoutesUser
         });
 
         users.MapGet("",
-            async ([FromServices] IUserService userService, [FromQuery] UserType? type) =>
+            async ([FromServices] IUserService userService, [FromQuery] UserType? type, 
+                [FromQuery] int? page, [FromQuery]int? pageSize) =>
             {
                 List<UserResponseDTO> allUsersAsync;
+                var totalItems = 0;
                 
                 if (type.HasValue)
                     allUsersAsync = await userService.GetUsersByType(type.Value);  
                 else
-                    allUsersAsync = await userService.GetAllUsersAsync();
-                
-                return Results.Ok(new ApiResponse<object>(Success: true, Data: new { users = allUsersAsync}));
+                    (allUsersAsync, totalItems)  = await userService.GetAllUsersAsync(page ?? 1,  pageSize ?? 20);
+
+                return Results.Ok(new ApiResponse<object>(Success: true, Data: new { users = allUsersAsync }, 
+                    Pagination: new PagedResultDTO(
+                        Page: page ?? 1,
+                        PageSize: pageSize ?? 20,
+                        TotalItems: totalItems,
+                        TotalPages: (int)Math.Ceiling((double)totalItems / (pageSize ?? 20))
+                )));
             });
 
         users.MapPost("", async (UserRegisterDTO userRegisterDto, [FromServices] IUserService userService) =>
         {
             var user = await userService.CreateUserAsync(userRegisterDto);
             
-            return Results.Created($"users/{user.Id}", new ApiResponse<UserResponseDTO>(Success: true, Data: user, StatusCode: (int)HttpStatusCode.Created));
+            return Results.Created($"users/{user.Id}", new ApiResponse<UserResponseDTO>(Success: true, StatusCode: (int)HttpStatusCode.Created, Data: user));
         });
 
         users.MapGet("/statement/{id}", async (Guid id, [FromServices] IUserService userService) =>

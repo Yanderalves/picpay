@@ -47,9 +47,9 @@ public class UserService : IUserService
         return userResponseDto;
     }
 
-    public async Task<List<UserResponseDTO>> GetAllUsersAsync()
+    public async Task<(List<UserResponseDTO>, int)> GetAllUsersAsync(int page, int pageSize)
     {
-        var users = await _userRepository.GetAllUsersAsync();
+        var (users, total) = await _userRepository.GetAllUsersAsync(page, pageSize);
         if (users is null)
             throw new UserNotFoundException("No users were found");
 
@@ -57,7 +57,7 @@ public class UserService : IUserService
             new UserResponseDTO
                 (item.Id, item.Email, item.Name, item.Type, item.Balance)).ToList();
 
-        return usersDto;
+        return (usersDto, total);
     }
 
     public async Task<string> LoginAsync(UserLoginDTO userLoginDto)
