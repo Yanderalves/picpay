@@ -71,7 +71,10 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository,  UserRepository>();
 builder.Services.AddScoped<ITransferRepository, TransferRepository>();
-builder.Services.AddHttpClient<AuthorizationClient>();
+builder.Services.AddHttpClient<AuthorizationClient>(client =>
+{
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 builder.Services.AddScoped<ITransferService, TransferService>();
 builder.Services.AddScoped<TokenService>();
 
