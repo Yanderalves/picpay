@@ -77,8 +77,11 @@ builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddDbContext<DatabaseContext>(opt =>
 {
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));  
+    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<DatabaseContext>();
 
 var app = builder.Build();
 
@@ -96,5 +99,6 @@ app.UseAuthorization();
 
 app.UserRoutes();
 app.TransferRoutes();
+app.HealthRoutes();
 
 app.Run();
